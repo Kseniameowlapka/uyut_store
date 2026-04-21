@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контакты — Уют</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="deco-circle deco-circle-1"></div>
+<div class="deco-circle deco-circle-2"></div>
+<div class="deco-circle deco-circle-3"></div>
+
+<header class="header">
+    <div class="logo">УЮТ</div>
+    <nav class="nav">
+        <a href="index.html">ГЛАВНАЯ</a>
+        <a href="catalog.html">КАТАЛОГ</a>
+        <a href="collections.html">КОЛЛЕКЦИИ</a>
+        <a href="about.html">О НАС</a>
+        <a href="contacts.html">КОНТАКТЫ</a>
+    </nav>
+</header>
+
+<section class="contacts-hero">
+    <h1>Давайте поговорим</h1>
+    <p>Если у вас есть вопросы о мебели, доставке или индивидуальном заказе — мы будем рады помочь.</p>
+</section>
+
+<section class="contacts-container">
+    <div class="contact-info">
+        <h2>Контактная информация</h2>
+        <p><strong>Адрес</strong><br>Москва, ул. Деревянная 12</p>
+        <p><strong>Телефон</strong><br>+7 (900) 123-45-67</p>
+        <p><strong>Email</strong><br>hello@uyut.ru</p>
+        <p><strong>Часы работы</strong><br>Пн–Сб 10:00 — 20:00</p>
+    </div>
+    <div class="contact-form">
+        <h2>Написать нам</h2>
+        <form id="contactForm">
+            <input type="text" id="contactName" placeholder="Ваше имя" required>
+            <input type="email" id="contactEmail" placeholder="Email" required>
+            <textarea id="contactMessage" placeholder="Ваше сообщение" required></textarea>
+            <button type="submit" class="btn">Отправить <i class="fas fa-arrow-right"></i></button>
+        </form>
+        <div class="form-message" id="formMessage"></div>
+    </div>
+</section>
+
+<section class="contacts-map">
+    <iframe src="https://www.google.com/maps?q=moscow&output=embed" loading="lazy"></iframe>
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-col">
+            <h4>УЮТ</h4>
+            <p>Мебель, создающая пространство. Натуральные материалы, минимализм и тепло.</p>
+        </div>
+        <div class="footer-col">
+            <h4>МАГАЗИН</h4>
+            <a href="catalog.html">Каталог</a>
+            <a href="collections.html">Коллекции</a>
+            <a href="about.html">О нас</a>
+            <a href="contacts.html">Контакты</a>
+        </div>
+        <div class="footer-col">
+            <h4>КОНТАКТЫ</h4>
+            <p>hello@uyut.ru</p>
+            <p>+7 (900) 123-45-67</p>
+            <p>Москва, ул. Деревянная 12</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Мебельный магазин «Уют» — дизайн с душой</p>
+    </div>
+</footer>
+
+<script src="js/contacts.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const elements = document.querySelectorAll(".contacts-hero, .contacts-container, .contacts-map");
+        elements.forEach((el, i) => {
+            el.style.opacity = "0";
+            el.style.transform = "translateY(20px)";
+            setTimeout(() => {
+                el.style.transition = "all 0.6s ease";
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+            }, i * 150);
+        });
+    });
+</script>
+</body>
+</html>

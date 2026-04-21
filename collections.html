@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Коллекции — Уют</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="deco-circle deco-circle-1"></div>
+<div class="deco-circle deco-circle-2"></div>
+<div class="deco-circle deco-circle-3"></div>
+
+<header class="header">
+    <div class="logo">УЮТ</div>
+    <nav class="nav">
+        <a href="index.html">ГЛАВНАЯ</a>
+        <a href="catalog.html">КАТАЛОГ</a>
+        <a href="collections.html">КОЛЛЕКЦИИ</a>
+        <a href="about.html">О НАС</a>
+        <a href="contacts.html">КОНТАКТЫ</a>
+    </nav>
+</header>
+
+<section class="collection-hero">
+    <div class="collection-text">
+        <h1>Коллекция Zen Wood</h1>
+        <p>Минимализм формы и тепло натурального дерева. Коллекция вдохновлена японской архитектурой и скандинавской функциональностью.</p>
+    </div>
+    <div class="collection-image">
+        <img src="https://images.unsplash.com/photo-1604578762246-41134e37f9cc?q=80&w=1170&auto=format&fit=crop" alt="Zen Wood коллекция">
+    </div>
+</section>
+
+<section class="collection-story">
+    <div class="story-left">
+        <h2>Философия коллекции</h2>
+        <p>Zen Wood — это мебель, созданная для пространства, где важны воздух, свет и тактильные ощущения. Каждая линия проста, но продумана. Каждая поверхность сохраняет текстуру дерева.</p>
+    </div>
+    <div class="story-right">
+        <img src="https://images.unsplash.com/photo-1615873968403-89e068629265" alt="Интерьер с мебелью Zen Wood">
+    </div>
+</section>
+
+<!-- Только предметы коллекции (без дублирующейся галереи) -->
+<section class="collection-products">
+    <h2>Предметы из коллекции</h2>
+    <div id="collectionProducts" class="products-grid"></div>
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-col">
+            <h4>УЮТ</h4>
+            <p>Мебель, создающая пространство. Натуральные материалы, минимализм и тепло.</p>
+        </div>
+        <div class="footer-col">
+            <h4>МАГАЗИН</h4>
+            <a href="catalog.html">Каталог</a>
+            <a href="collections.html">Коллекции</a>
+            <a href="about.html">О нас</a>
+            <a href="contacts.html">Контакты</a>
+        </div>
+        <div class="footer-col">
+            <h4>КОНТАКТЫ</h4>
+            <p>hello@uyut.ru</p>
+            <p>+7 (900) 123-45-67</p>
+            <p>Москва, ул. Деревянная 12</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Мебельный магазин «Уют» — дизайн с душой</p>
+    </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/collections.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const elements = document.querySelectorAll(".collection-hero, .collection-story, .collection-products");
+        elements.forEach((el, i) => {
+            el.style.opacity = "0";
+            el.style.transform = "translateY(20px)";
+            setTimeout(() => {
+                el.style.transition = "all 0.6s ease";
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+            }, i * 150);
+        });
+    });
+</script>
+</body>
+</html>

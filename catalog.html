@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Каталог — Уют</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="deco-circle deco-circle-1"></div>
+<div class="deco-circle deco-circle-2"></div>
+<div class="deco-circle deco-circle-3"></div>
+
+<header class="header">
+    <div class="logo">УЮТ</div>
+    <nav class="nav">
+        <a href="index.html">ГЛАВНАЯ</a>
+        <a href="catalog.html">КАТАЛОГ</a>
+        <a href="collections.html">КОЛЛЕКЦИИ</a>
+        <a href="about.html">О НАС</a>
+        <a href="contacts.html">КОНТАКТЫ</a>
+    </nav>
+    <div id="adminHeaderPanel" style="display: none;">
+        <span class="admin-badge"><i class="fas fa-user-shield"></i> Админ</span>
+        <button class="logout-btn-header" id="logoutBtnHeader">Выйти</button>
+    </div>
+</header>
+
+<section class="catalog-header">
+    <h1>Каталог мебели</h1>
+    <div class="filters">
+        <button class="filter-btn active" data-category="all">Все</button>
+        <button class="filter-btn" data-category="chair">Стулья</button>
+        <button class="filter-btn" data-category="table">Столы</button>
+        <button class="filter-btn" data-category="sofa">Диваны</button>
+    </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Поиск по названию...">
+    </div>
+</section>
+
+<section class="catalog">
+    <div id="products" class="products-grid"></div>
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-col">
+            <h4>УЮТ</h4>
+            <p>Мебель, создающая пространство. Натуральные материалы, минимализм и тепло.</p>
+        </div>
+        <div class="footer-col">
+            <h4>МАГАЗИН</h4>
+            <a href="catalog.html">Каталог</a>
+            <a href="collections.html">Коллекции</a>
+            <a href="about.html">О нас</a>
+            <a href="contacts.html">Контакты</a>
+        </div>
+        <div class="footer-col">
+            <h4>КОНТАКТЫ</h4>
+            <p>hello@uyut.ru</p>
+            <p>+7 (900) 123-45-67</p>
+            <p>Москва, ул. Деревянная 12</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Мебельный магазин «Уют» — дизайн с душой</p>
+    </div>
+</footer>
+
+<!-- Кнопка добавления товара (видна только админу) -->
+<button id="addProductBtn" class="admin-add-btn" style="display: none;">
+    <i class="fas fa-plus"></i> Добавить мебель
+</button>
+
+<!-- Незаметная кнопка для входа в админку -->
+<div class="admin-login-link">
+    <a href="#" id="showAdminLoginBtn" title="Вход для администратора">
+        <i class="fas fa-user-shield"></i>
+    </a>
+</div>
+
+<!-- Модальное окно добавления товара -->
+<div id="addProductModal" class="admin-modal">
+    <div class="admin-modal-content">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h3>Добавить новую мебель</h3>
+        
+        <input type="text" id="productName" placeholder="Название *" autocomplete="off">
+        <input type="text" id="productPrice" placeholder="Цена * (например: 12 900 ₽)" autocomplete="off">
+        
+        <select id="productCategory">
+            <option value="chair">Стул</option>
+            <option value="table">Стол</option>
+            <option value="sofa">Диван</option>
+        </select>
+        
+        <input type="text" id="productImage" placeholder="URL фото (оставьте пустым для фото по умолчанию)" autocomplete="off">
+        
+        <div class="modal-buttons">
+            <button id="saveProductBtn">Сохранить</button>
+            <button id="cancelModalBtn">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно входа в админку -->
+<div id="adminLoginModal" class="admin-modal">
+    <div class="admin-modal-content login-modal-content">
+        <span class="close-modal" id="closeLoginModalBtn">&times;</span>
+        <h3>Вход в админ-панель</h3>
+        <input type="text" id="loginUsername" placeholder="Логин" autocomplete="off">
+        <input type="password" id="loginPassword" placeholder="Пароль" autocomplete="off">
+        <div id="loginError" class="login-error"></div>
+        <div class="modal-buttons">
+            <button id="submitLoginBtn">Войти</button>
+            <button id="cancelLoginBtn">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/catalog.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const elements = document.querySelectorAll("h1, .filter-btn, .search-box");
+        elements.forEach((el, i) => {
+            if(el.style) {
+                el.style.opacity = "0";
+                el.style.transform = "translateY(15px)";
+                setTimeout(() => {
+                    el.style.transition = "all 0.5s ease";
+                    el.style.opacity = "1";
+                    el.style.transform = "translateY(0)";
+                }, i * 80);
+            }
+        });
+    });
+</script>
+</body>
+</html>

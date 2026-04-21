@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Уют — мебель с характером</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Декоративные элементы фона -->
+<div class="deco-circle deco-circle-1"></div>
+<div class="deco-circle deco-circle-2"></div>
+<div class="deco-circle deco-circle-3"></div>
+
+<header class="header">
+  <div class="logo">УЮТ</div>
+  <nav class="nav">
+    <a href="catalog.html">КАТАЛОГ</a>
+    <a href="collections.html">КОЛЛЕКЦИИ</a>
+    <a href="about.html">О НАС</a>
+    <a href="contacts.html">КОНТАКТЫ</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <h1>Тишина <span>формы</span><br>Тепло дерева</h1>
+      <p>Мебель, в которой скандинавская простота встречается с японской философией пространства.</p>
+      <button class="btn" onclick="window.location.href='catalog.html'">СМОТРЕТЬ КАТАЛОГ <i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div class="hero-center">
+      <img src="images/chair.jpg" alt="Стул" class="chair">
+    </div>
+    <div class="hero-right">
+      <div class="deco-line"></div>
+      <div class="deco-text">EST. 2026</div>
+      <div class="deco-line"></div>
+    </div>
+  </section>
+
+  <!-- Превью коллекций - кликабельные карточки с правильными фото -->
+  <section class="preview-section">
+    <h2 class="section-title">Вдохновение в деталях</h2>
+    <div class="preview-grid">
+      <div class="preview-card" onclick="window.location.href='catalog.html'" style="cursor: pointer;">
+        <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?q=80&w=1170&auto=format&fit=crop" alt="Стул Zen Ash">
+        <h3>Стул Zen Ash</h3>
+        <p>минимализм / ясень</p>
+      </div>
+      <div class="preview-card" onclick="window.location.href='catalog.html'" style="cursor: pointer;">
+        <img src="https://images.unsplash.com/photo-1749476101600-90b2eb7efa89?q=80&w=687&auto=format&fit=crop" alt="Стол Kyoto">
+        <h3>Стол Kyoto</h3>
+        <p>натуральное дерево</p>
+      </div>
+      <div class="preview-card" onclick="window.location.href='catalog.html'" style="cursor: pointer;">
+        <img src="https://images.unsplash.com/photo-1698936061086-2bf99c7b9fc5?q=80&w=1074&auto=format&fit=crop" alt="Диван Minimal">
+        <h3>Диван Minimal</h3>
+        <p>тактильность / уют</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-col">
+      <h4>УЮТ</h4>
+      <p>Мебель, создающая пространство. Натуральные материалы, минимализм и тепло.</p>
+    </div>
+    <div class="footer-col">
+      <h4>МАГАЗИН</h4>
+      <a href="catalog.html">Каталог</a>
+      <a href="collections.html">Коллекции</a>
+      <a href="about.html">О нас</a>
+      <a href="contacts.html">Контакты</a>
+    </div>
+    <div class="footer-col">
+      <h4>КОНТАКТЫ</h4>
+      <p>hello@uyut.ru</p>
+      <p>+7 (900) 123-45-67</p>
+      <p>Москва, ул. Деревянная 12</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Мебельный магазин «Уют» — дизайн с душой</p>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const elements = document.querySelectorAll("h1, p, .btn, .chair, .preview-card");
+    elements.forEach((el, i) => {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(25px)";
+      setTimeout(() => {
+        el.style.transition = "all 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1)";
+        el.style.opacity = "1";
+        el.style.transform = "translateY(0)";
+      }, i * 120);
+    });
+  });
+</script>
+<!-- Незаметная кнопка для входа в админку -->
+<div class="admin-login-link">
+    <a href="#" id="showAdminLoginBtn" title="Вход для администратора">
+        <i class="fas fa-user-shield"></i>
+    </a>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+    document.getElementById('showAdminLoginBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('adminLoginModal');
+        if (modal) modal.classList.add('active');
+        else if (window.showLoginModal) window.showLoginModal();
+        else window.location.href = 'admin.html';
+    });
+</script>
+</body>
+</html>
