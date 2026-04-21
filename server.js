@@ -237,7 +237,51 @@ app.delete('/api/products/:id', authMiddleware, isAdmin, async (req, res) => {
         res.status(500).json({ error: 'Ошибка сервера' });
     }
 });
+// ==================== ПОИСК ТОВАРОВ ====================
 
+// Поиск товаров по названию (доступно всем)
+app.get('/api/products/search/:query', async (req, res) => {
+    try {
+        const searchTerm = `%${req.params.query}%`;
+        const [products] = await pool.query(
+            'SELECT * FROM products WHERE name LIKE ? ORDER BY id DESC',
+            [searchTerm]
+        );
+        res.json(products);
+    } catch (error) {
+        console.error('Ошибка поиска:', error);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
+
+// Расширенный поиск по названию, категории и описанию (опционально)
+app.get('/api/products/search', async (req, res) => {
+    try {
+        const { q, category } = req.query;
+        
+        let query = 'SELECT * FROM products WHERE 1=1';
+        const params = [];
+        
+        if (q) {
+            query += ' AND (name LIKE ? OR description LIKE ?)';
+            const searchTerm = `%${q}%`;
+            params.push(searchTerm, searchTerm);
+        }
+        
+        if (category && category !== 'all') {
+            query += ' AND category = ?';
+            params.push(category);
+        }
+        
+        query += ' ORDER BY id DESC';
+        
+        const [products] = await pool.query(query, params);
+        res.json(products);
+    } catch (error) {
+        console.error('Ошибка расширенного поиска:', error);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
 // ==================== КОЛЛЕКЦИИ ====================
 
 // Получить все коллекции (доступно всем)
