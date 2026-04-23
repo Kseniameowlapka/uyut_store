@@ -18,7 +18,6 @@ app.use(cors());
 app.use(express.json());
 app.use(helmet());
 
-// Глобальный лимит запросов (100 запросов за 15 минут)
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -26,14 +25,12 @@ const globalLimiter = rateLimit({
 });
 app.use('/api/', globalLimiter);
 
-// Строгий лимит для логина (5 попыток за 15 минут)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
     message: { error: 'Слишком много попыток входа, попробуйте через 15 минут' }
 });
 
-// Middleware для проверки JWT токена
 const authMiddleware = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -48,7 +45,6 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-// Middleware для проверки прав администратора
 const isAdmin = (req, res, next) => {
     if (req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Требуются права администратора' });
@@ -68,17 +64,12 @@ app.get('/test-db', async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error('Ошибка test-db:', error);
-        res.status(500).json({
-            error: error.message,
-            sqlMessage: error.sqlMessage || null,
-            code: error.code || null
-        });
+        res.status(500).json({ error: 'Ошибка сервера' });
     }
 });
 
 // ==================== АВТОРИЗАЦИЯ ====================
 
-// Регистрация с валидацией
 app.post('/api/auth/register', [
     body('email').isEmail().normalizeEmail().withMessage('Некорректный email'),
     body('password').isLength({ min: 6 }).withMessage('Пароль должен быть минимум 6 символов'),
@@ -111,7 +102,6 @@ app.post('/api/auth/register', [
     }
 });
 
-// Логин с валидацией и лимитом
 app.post('/api/auth/login', authLimiter, [
     body('email').isEmail().normalizeEmail(),
     body('password').notEmpty()
@@ -150,7 +140,6 @@ app.post('/api/auth/login', authLimiter, [
 
 // ==================== ТОВАРЫ ====================
 
-// Получить все товары (доступно всем)
 app.get('/api/products', async (req, res) => {
     try {
         const [products] = await pool.query('SELECT * FROM products ORDER BY id DESC');
@@ -161,7 +150,6 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// Получить один товар (доступно всем)
 app.get('/api/products/:id', async (req, res) => {
     try {
         const [products] = await pool.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
@@ -175,7 +163,6 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
-// Создать товар (только админ)
 app.post('/api/products', authMiddleware, isAdmin, [
     body('name').notEmpty().withMessage('Название обязательно'),
     body('price').isNumeric().withMessage('Цена должна быть числом'),
@@ -201,19 +188,29 @@ app.post('/api/products', authMiddleware, isAdmin, [
     }
 });
 
-// Обновить товар (только админ)
+// ========== ИСПРАВЛЕННЫЙ PUT (не обнуляет поля) ==========
 app.put('/api/products/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const { name, price, category, description, image_url, collection_id } = req.body;
         
-        const [result] = await pool.query(
-            'UPDATE products SET name = ?, price = ?, category = ?, description = ?, image_url = ?, collection_id = ? WHERE id = ?',
-            [name, price, category || null, description || null, image_url || null, collection_id || null, req.params.id]
-        );
-        
-        if (result.affectedRows === 0) {
+        // Получаем текущий товар
+        const [current] = await pool.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
+        if (current.length === 0) {
             return res.status(404).json({ error: 'Товар не найден' });
         }
+        
+        // Обновляем только те поля, которые переданы
+        const updatedName = name !== undefined ? name : current[0].name;
+        const updatedPrice = price !== undefined ? price : current[0].price;
+        const updatedCategory = category !== undefined ? category : current[0].category;
+        const updatedDescription = description !== undefined ? description : current[0].description;
+        const updatedImageUrl = image_url !== undefined ? image_url : current[0].image_url;
+        const updatedCollectionId = collection_id !== undefined ? collection_id : current[0].collection_id;
+        
+        const [result] = await pool.query(
+            'UPDATE products SET name = ?, price = ?, category = ?, description = ?, image_url = ?, collection_id = ? WHERE id = ?',
+            [updatedName, updatedPrice, updatedCategory, updatedDescription, updatedImageUrl, updatedCollectionId, req.params.id]
+        );
         
         res.json({ message: 'Товар обновлён' });
     } catch (error) {
@@ -222,24 +219,21 @@ app.put('/api/products/:id', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-// Удалить товар (только админ)
 app.delete('/api/products/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const [result] = await pool.query('DELETE FROM products WHERE id = ?', [req.params.id]);
-        
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Товар не найден' });
         }
-        
         res.json({ message: 'Товар удалён' });
     } catch (error) {
         console.error('Ошибка DELETE /api/products/:id:', error);
         res.status(500).json({ error: 'Ошибка сервера' });
     }
 });
+
 // ==================== ПОИСК ТОВАРОВ ====================
 
-// Поиск товаров по названию (доступно всем)
 app.get('/api/products/search/:query', async (req, res) => {
     try {
         const searchTerm = `%${req.params.query}%`;
@@ -254,27 +248,21 @@ app.get('/api/products/search/:query', async (req, res) => {
     }
 });
 
-// Расширенный поиск по названию, категории и описанию (опционально)
 app.get('/api/products/search', async (req, res) => {
     try {
         const { q, category } = req.query;
-        
         let query = 'SELECT * FROM products WHERE 1=1';
         const params = [];
-        
         if (q) {
             query += ' AND (name LIKE ? OR description LIKE ?)';
             const searchTerm = `%${q}%`;
             params.push(searchTerm, searchTerm);
         }
-        
         if (category && category !== 'all') {
             query += ' AND category = ?';
             params.push(category);
         }
-        
         query += ' ORDER BY id DESC';
-        
         const [products] = await pool.query(query, params);
         res.json(products);
     } catch (error) {
@@ -282,9 +270,9 @@ app.get('/api/products/search', async (req, res) => {
         res.status(500).json({ error: 'Ошибка сервера' });
     }
 });
+
 // ==================== КОЛЛЕКЦИИ ====================
 
-// Получить все коллекции (доступно всем)
 app.get('/api/collections', async (req, res) => {
     try {
         const [collections] = await pool.query('SELECT * FROM collections ORDER BY id DESC');
@@ -295,7 +283,6 @@ app.get('/api/collections', async (req, res) => {
     }
 });
 
-// Получить одну коллекцию (доступно всем)
 app.get('/api/collections/:id', async (req, res) => {
     try {
         const [collections] = await pool.query('SELECT * FROM collections WHERE id = ?', [req.params.id]);
@@ -309,13 +296,9 @@ app.get('/api/collections/:id', async (req, res) => {
     }
 });
 
-// Получить товары коллекции (доступно всем)
 app.get('/api/collections/:id/products', async (req, res) => {
     try {
-        const [products] = await pool.query(
-            'SELECT * FROM products WHERE collection_id = ? ORDER BY id DESC',
-            [req.params.id]
-        );
+        const [products] = await pool.query('SELECT * FROM products WHERE collection_id = ? ORDER BY id DESC', [req.params.id]);
         res.json(products);
     } catch (error) {
         console.error('Ошибка GET /api/collections/:id/products:', error);
@@ -323,20 +306,16 @@ app.get('/api/collections/:id/products', async (req, res) => {
     }
 });
 
-// Создать коллекцию (только админ)
 app.post('/api/collections', authMiddleware, isAdmin, async (req, res) => {
     try {
         const { name, slug, description, cover_image } = req.body;
-        
         if (!name || !slug) {
             return res.status(400).json({ error: 'Поля name и slug обязательны' });
         }
-        
         const [result] = await pool.query(
             'INSERT INTO collections (name, slug, description, cover_image) VALUES (?, ?, ?, ?)',
             [name, slug, description || null, cover_image || null]
         );
-        
         res.status(201).json({ message: 'Коллекция создана', id: result.insertId });
     } catch (error) {
         console.error('Ошибка POST /api/collections:', error);
@@ -344,24 +323,19 @@ app.post('/api/collections', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-// Обновить коллекцию (только админ)
 app.put('/api/collections/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const { name, slug, description, cover_image } = req.body;
-        
         if (!name || !slug) {
             return res.status(400).json({ error: 'Поля name и slug обязательны' });
         }
-        
         const [result] = await pool.query(
             'UPDATE collections SET name = ?, slug = ?, description = ?, cover_image = ? WHERE id = ?',
             [name, slug, description || null, cover_image || null, req.params.id]
         );
-        
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Коллекция не найдена' });
         }
-        
         res.json({ message: 'Коллекция обновлена' });
     } catch (error) {
         console.error('Ошибка PUT /api/collections/:id:', error);
@@ -369,17 +343,13 @@ app.put('/api/collections/:id', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-// Удалить коллекцию (только админ)
 app.delete('/api/collections/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         await pool.query('UPDATE products SET collection_id = NULL WHERE collection_id = ?', [req.params.id]);
-        
         const [result] = await pool.query('DELETE FROM collections WHERE id = ?', [req.params.id]);
-        
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Коллекция не найдена' });
         }
-        
         res.json({ message: 'Коллекция удалена' });
     } catch (error) {
         console.error('Ошибка DELETE /api/collections/:id:', error);
@@ -389,20 +359,13 @@ app.delete('/api/collections/:id', authMiddleware, isAdmin, async (req, res) => 
 
 // ==================== СООБЩЕНИЯ ====================
 
-// Отправить сообщение (доступно всем)
 app.post('/api/contacts', async (req, res) => {
     try {
         const { name, email, text } = req.body;
-        
         if (!name || !email || !text) {
             return res.status(400).json({ error: 'Все поля обязательны' });
         }
-        
-        const [result] = await pool.query(
-            'INSERT INTO messages (name, email, text) VALUES (?, ?, ?)',
-            [name, email, text]
-        );
-        
+        const [result] = await pool.query('INSERT INTO messages (name, email, text) VALUES (?, ?, ?)', [name, email, text]);
         res.status(201).json({ message: 'Сообщение отправлено', id: result.insertId });
     } catch (error) {
         console.error('Ошибка POST /api/contacts:', error);
@@ -410,7 +373,6 @@ app.post('/api/contacts', async (req, res) => {
     }
 });
 
-// Получить все сообщения (только админ)
 app.get('/api/messages', authMiddleware, isAdmin, async (req, res) => {
     try {
         const [messages] = await pool.query('SELECT * FROM messages ORDER BY id DESC');
@@ -421,7 +383,6 @@ app.get('/api/messages', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-// Получить одно сообщение (только админ)
 app.get('/api/messages/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const [messages] = await pool.query('SELECT * FROM messages WHERE id = ?', [req.params.id]);
@@ -435,7 +396,6 @@ app.get('/api/messages/:id', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-// Удалить сообщение (только админ)
 app.delete('/api/messages/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const [result] = await pool.query('DELETE FROM messages WHERE id = ?', [req.params.id]);
@@ -452,5 +412,5 @@ app.delete('/api/messages/:id', authMiddleware, isAdmin, async (req, res) => {
 // ==================== ЗАПУСК СЕРВЕРА ====================
 
 app.listen(PORT, () => {
-    console.log(` Сервер запущен на http://localhost:${PORT}`);
+    console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
